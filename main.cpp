@@ -1,5 +1,5 @@
 /*
-25 de septiembre de 2025
+25 - 27 de septiembre de 2025
 Vanessa Reteguín - 375533
 
 Algoritmo de recosido simulado para placa de PBC
@@ -168,9 +168,8 @@ class Solution {
         int i;
         i = rand() % componentsQuantity;
 
-        components[i].x +=
-            ((rand() % 21) - 10);  // movement between -10 and +10
-        components[i].y += ((rand() % 21) - 10);
+        components[i].x += ((rand() % 21) - 15);  // space between -15 and +15
+        components[i].y += ((rand() % 21) - 15);
 
         // PCB limits
 
@@ -272,7 +271,7 @@ int main() {
     bool run = true;
 
     /* - Algorithm - */
-    int i;
+    int i, j, k;
     double currentDistance, bestDistance, newDistance;
 
     /* --------------------------- Code ---------------------------- */
@@ -290,19 +289,36 @@ int main() {
 
                 Solution solution;
                 solution.componentsQuantity = 8;
-                solution.floorWidth = 100;
-                solution.floorHeight = 80;
-                solution.maxIterations = 10000;
-                solution.initialTemperature = 1080.0;
-                solution.finalTemperature = 25.0;
-                solution.alpha = 0.99;
+                solution.floorWidth = 50;
+                solution.floorHeight = 50;
+                solution.maxIterations = 2000;
+                solution.initialTemperature = 1000;
+                solution.finalTemperature = 20;
+                solution.alpha = 0.8;
 
-                solution.conectionns.push_back({0, 1, 0, 0, 1, 0});
-                solution.conectionns.push_back({1, 0, 1, 0, 0, 0});
-                solution.conectionns.push_back({0, 1, 0, 1, 0, 1});
-                solution.conectionns.push_back({0, 0, 1, 0, 0, 1});
-                solution.conectionns.push_back({1, 0, 0, 0, 0, 1});
-                solution.conectionns.push_back({0, 0, 1, 1, 1, 0});
+                // solution.conectionns.push_back({0, 1, 0, 0, 1, 0});
+                // solution.conectionns.push_back({1, 0, 1, 0, 0, 0});
+                // solution.conectionns.push_back({0, 1, 0, 1, 0, 1});
+                // solution.conectionns.push_back({0, 0, 1, 0, 0, 1});
+                // solution.conectionns.push_back({1, 0, 0, 0, 0, 1});
+                // solution.conectionns.push_back({0, 0, 1, 1, 1, 0});
+
+                solution.conectionns.push_back(
+                    {0, 0, 1, 1, 0, 1, 0, 0});  // Procesador
+                solution.conectionns.push_back(
+                    {0, 0, 0, 0, 0, 0, 1, 1});  // Capacitor
+                solution.conectionns.push_back(
+                    {1, 0, 0, 1, 0, 0, 0, 0});  // Sensor
+                solution.conectionns.push_back(
+                    {1, 0, 1, 0, 0, 1, 0, 0});  // Transistor
+                solution.conectionns.push_back(
+                    {0, 0, 0, 0, 0, 1, 1, 0});  // Diodo
+                solution.conectionns.push_back(
+                    {1, 0, 0, 1, 1, 0, 0, 0});  // Led
+                solution.conectionns.push_back(
+                    {0, 1, 0, 0, 1, 0, 0, 0});  // Resistor
+                solution.conectionns.push_back(
+                    {0, 1, 0, 0, 0, 0, 0, 0});  // Bobina
 
                 // Components names
                 vector<pair<string, char>> componentNames = {
@@ -334,6 +350,23 @@ int main() {
                     solution.copy(newSolution, currentSolution);
                     solution.disturb(newSolution);
 
+                    // Eliminate duplicates
+                    for (j = 0; j < solution.componentsQuantity; j++) {
+                        for (k = 0; k < solution.componentsQuantity; k++) {
+                            if (i != j) {
+                                if ((currentSolution[j].x ==
+                                     currentSolution[k].x) &&
+                                    (currentSolution[j].y ==
+                                     currentSolution[k].y)) {
+                                    currentSolution[j].x =
+                                        rand() % solution.floorWidth;
+                                    currentSolution[j].y =
+                                        rand() % solution.floorHeight;
+                                }
+                            }
+                        }
+                    }
+
                     // Evaluate solution's fitness
                     newDistance = solution.totalDistance(newSolution);
 
@@ -343,7 +376,7 @@ int main() {
                         solution.copy(currentSolution, newSolution);
                         currentDistance = newDistance;
 
-                        if (newDistance < newDistance) {
+                        if (newDistance < bestDistance) {
                             solution.copy(bestSolution, newSolution);
                             bestDistance = newDistance;
                         }
@@ -366,11 +399,12 @@ int main() {
                 for (i = 0; i < solution.componentsQuantity; i++) {
                     cout
 
+                        << endl
                         << "(" << bestSolution[i].x << ", " << bestSolution[i].y
-                        << ")" << endl;
+                        << ")";
                 }
 
-                cout << endl << "Costo total minimo: " << bestDistance;
+                cout << endl << "\nCosto total minimo: " << bestDistance;
 
                 printAdjacencyMatrix();
             } break;
